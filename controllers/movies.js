@@ -2,7 +2,7 @@ const Movie = require('../models/movie');
 const NotFoundError = require('../errors/not-found-err');
 const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request');
-// const ForbiddenError = require('../errors/forbidden');
+const ForbiddenError = require('../errors/forbidden');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
@@ -27,7 +27,7 @@ module.exports.createMovie = (req, res, next) => {
     thumbnail,
     movieId,
   } = req.body;
-  // const owner = req.user._id;
+  const owner = req.user._id;
   Movie.create({
     country,
     director,
@@ -36,7 +36,7 @@ module.exports.createMovie = (req, res, next) => {
     description,
     image,
     trailer,
-    // owner,
+    owner,
     nameRU,
     nameEN,
     thumbnail,
@@ -51,7 +51,7 @@ module.exports.createMovie = (req, res, next) => {
       image: movie.image,
       trailer: movie.trailer,
       thumbnail: movie.thumbnail,
-      // owner: movie.owner,
+      owner: movie.owner,
       nameRU: movie.nameRU,
       nameEN: movie.nameEN,
       movieId: movie.movieId,
@@ -73,7 +73,7 @@ module.exports.deleteMovie = (req, res, next) => {
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError('Запрашиваемая карточка не найдена');
-      } else /* if (req.user._id === movie.owner.toString()) */{
+      } else if (req.user._id === movie.owner.toString()) {
         return Movie.findByIdAndRemove(req.params.movieId)
           .then((deletedMovie) => {
             res.send({
@@ -86,14 +86,15 @@ module.exports.deleteMovie = (req, res, next) => {
               trailer: deletedMovie.trailer,
               thumbnail: deletedMovie.thumbnail,
               owner: deletedMovie.owner,
-              movieId: deletedMovie._id,
+              movieId: deletedMovie.movieId,
+              _id: deletedMovie._id,
               nameRU: deletedMovie.nameRU,
               nameEN: deletedMovie.nameEN,
             });
           });
-      } /* else {
+      } else {
         throw new ForbiddenError('Удалять можно только свои карточки');
-      } */
+      }
     })
     .catch((e) => {
       let error = e;
@@ -109,69 +110,3 @@ module.exports.deleteMovie = (req, res, next) => {
       next(error);
     });
 };
-/*
-module.exports.likeMovie = (req, res, next) => {
-  Movie.findByIdAndUpdate(
-    req.params.movieId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
-    .then((movie) => {
-      if (!movie) {
-        throw new NotFoundError('Запрашиваемая карточка не найдена');
-      } else {
-        res.send({
-          name: movie.name,
-          link: movie.link,
-          owner: movie.owner,
-          _id: movie._id,
-          createdAt: movie.createdAt,
-          likes: movie.likes,
-        });
-      }
-    })
-    .catch((e) => {
-      let error = e;
-      if (!(error.name === 'NotFoundError')) {
-        if (e.name === 'CastError') {
-          error = new BadRequestError('Невалидный id');
-        } else {
-          error = new InternalServerError('На сервере произошла ошибка');
-        }
-      }
-      next(error);
-    });
-};
-
-module.exports.dislikeMovie = (req, res, next) => {
-  Movie.findByIdAndUpdate(
-    req.params.movieId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
-    .then((movie) => {
-      if (!movie) {
-        throw new NotFoundError('Запрашиваемая карточка не найдена');
-      } else {
-        res.send({
-          name: movie.name,
-          link: movie.link,
-          owner: movie.owner,
-          _id: movie._id,
-          createdAt: movie.createdAt,
-          likes: movie.likes,
-        });
-      }
-    })
-    .catch((e) => {
-      let error = e;
-      if (!(error.name === 'NotFoundError')) {
-        if (e.name === 'CastError') {
-          error = new BadRequestError('Невалидный id');
-        } else {
-          error = new InternalServerError('На сервере произошла ошибка');
-        }
-      }
-      next(error);
-    });
-}; */

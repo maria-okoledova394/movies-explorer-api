@@ -1,15 +1,15 @@
 require('dotenv').config();
-// const bcrypt = require('bcryptjs');
-// const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
-// const UnauthorizedError = require('../errors/unauthorized');
+const UnauthorizedError = require('../errors/unauthorized');
 const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request');
-// const ConflictError = require('../errors/conflict');
+const ConflictError = require('../errors/conflict');
 
-// const { NODE_ENV, JWT_SECRET } = process.env;
-// const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'bad-secret-key';
+const { NODE_ENV, JWT_SECRET } = process.env;
+const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'bad-secret-key';
 
 module.exports.getProfileInfo = (req, res, next) => {
   User.findById(req.user._id)
@@ -69,7 +69,7 @@ module.exports.updateProfile = (req, res, next) => {
       next(error);
     });
 };
-/*
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -104,42 +104,6 @@ module.exports.login = (req, res, next) => {
     });
 };
 
-module.exports.getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send({ users }))
-    .catch(() => {
-      const error = new InternalServerError('На сервере произошла ошибка');
-      next(error);
-    });
-};
-
-module.exports.getUser = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Запрашиваемый пользователь не найден');
-      } else {
-        res.send({
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-          _id: user._id,
-        });
-      }
-    })
-    .catch((e) => {
-      let error = e;
-      if (!(error.name === 'NotFoundError')) {
-        if (e.name === 'CastError') {
-          error = new BadRequestError('Невалидный id');
-        } else {
-          error = new InternalServerError('На сервере произошла ошибка');
-        }
-      }
-      next(error);
-    });
-};
-
 module.exports.createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => {
@@ -148,8 +112,6 @@ module.exports.createUser = (req, res, next) => {
     })
     .then((user) => res.send({
       name: user.name,
-      about: user.about,
-      avatar: user.avatar,
       _id: user._id,
       email: user.email,
     }))
@@ -165,39 +127,3 @@ module.exports.createUser = (req, res, next) => {
       next(error);
     });
 };
-
-module.exports.updateAvatar = (req, res, next) => {
-  const { avatar } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Запрашиваемый пользователь не найден');
-      }
-      res.send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        _id: user._id,
-      });
-    })
-    .catch((e) => {
-      let error = e;
-      if (!(error.name === 'NotFoundError')) {
-        if (e.name === 'CastError') {
-          error = new BadRequestError('Невалидный id');
-        } else if (e.name === 'ValidationError') {
-          error = new BadRequestError('Некорректные введенные данные');
-        } else {
-          error = new InternalServerError('На сервере произошла ошибка');
-        }
-      }
-      next(error);
-    });
-}; */
