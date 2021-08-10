@@ -2,7 +2,7 @@ const Movie = require('../models/movie');
 const NotFoundError = require('../errors/not-found-err');
 const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request');
-const ForbiddenError = require('../errors/forbidden');
+// const ForbiddenError = require('../errors/forbidden');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
@@ -22,11 +22,12 @@ module.exports.createMovie = (req, res, next) => {
     description,
     image,
     trailer,
-    thumbnail,
     nameRU,
     nameEN,
+    thumbnail,
+    movieId,
   } = req.body;
-  const owner = req.user._id;
+  // const owner = req.user._id;
   Movie.create({
     country,
     director,
@@ -35,10 +36,11 @@ module.exports.createMovie = (req, res, next) => {
     description,
     image,
     trailer,
-    thumbnail,
-    owner,
+    // owner,
     nameRU,
     nameEN,
+    thumbnail,
+    movieId,
   })
     .then((movie) => res.send({
       country: movie.country,
@@ -49,12 +51,13 @@ module.exports.createMovie = (req, res, next) => {
       image: movie.image,
       trailer: movie.trailer,
       thumbnail: movie.thumbnail,
-      owner: movie.owner,
-      movieId: movie._id,
+      // owner: movie.owner,
       nameRU: movie.nameRU,
       nameEN: movie.nameEN,
+      movieId: movie.movieId,
     }))
     .catch((e) => {
+      console.log(e);
       let error = e;
       if (e.name === 'ValidationError') {
         error = new BadRequestError('Некорректные введенные данные');
@@ -70,7 +73,7 @@ module.exports.deleteMovie = (req, res, next) => {
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError('Запрашиваемая карточка не найдена');
-      } else if (req.user._id === movie.owner.toString()) {
+      } else /* if (req.user._id === movie.owner.toString()) */{
         return Movie.findByIdAndRemove(req.params.movieId)
           .then((deletedMovie) => {
             res.send({
@@ -88,9 +91,9 @@ module.exports.deleteMovie = (req, res, next) => {
               nameEN: deletedMovie.nameEN,
             });
           });
-      } else {
+      } /* else {
         throw new ForbiddenError('Удалять можно только свои карточки');
-      }
+      } */
     })
     .catch((e) => {
       let error = e;

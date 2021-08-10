@@ -1,15 +1,15 @@
 require('dotenv').config();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+// const bcrypt = require('bcryptjs');
+// const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
-const UnauthorizedError = require('../errors/unauthorized');
+// const UnauthorizedError = require('../errors/unauthorized');
 const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request');
-const ConflictError = require('../errors/conflict');
+// const ConflictError = require('../errors/conflict');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
-const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'bad-secret-key';
+// const { NODE_ENV, JWT_SECRET } = process.env;
+// const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'bad-secret-key';
 
 module.exports.getProfileInfo = (req, res, next) => {
   User.findById(req.user._id)
@@ -24,6 +24,7 @@ module.exports.getProfileInfo = (req, res, next) => {
       }
     })
     .catch((e) => {
+      console.log(e);
       let error = e;
       if (!(error.name === 'NotFoundError')) {
         if (e.name === 'CastError') {

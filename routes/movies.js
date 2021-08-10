@@ -5,7 +5,7 @@ const {
   getMovies,
   createMovie,
   deleteMovie,
-} = require('../controllers/cards');
+} = require('../controllers/movies');
 
 const BadRequestError = require('../errors/bad-request');
 
@@ -19,19 +19,27 @@ const method = (value) => {
   throw new BadRequestError('Некорректные введенные данные');
 };
 
-router.get('/movies', getMovies);
+router.get('/', getMovies);
 
-router.post('/movies', celebrate({
+router.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30)
-      .label('Некорректные введенные данные'),
-    link: Joi.string().required().custom(method).label('Некорректные введенные данные'),
+    country: Joi.string().required().label('Некорректные введенные данные страны'),
+    director: Joi.string().required().label('Некорректные введенные данные директора'),
+    duration: Joi.number().required().label('Некорректные введенные данные длительности'),
+    year: Joi.string().required().label('Некорректные введенные данные года'),
+    description: Joi.string().required().label('Некорректные введенные данные описания'),
+    image: Joi.string().required().custom(method).label('Некорректные введенные данные изображения'),
+    trailer: Joi.string().required().custom(method).label('Некорректные введенные данные трейлера'),
+    nameRU: Joi.string().required().label('Некорректные введенные данные названия'),
+    nameEN: Joi.string().required().label('Некорректные введенные данные названия'),
+    thumbnail: Joi.string().required().custom(method).label('Некорректные введенные данные миниатюры'),
+    movieId: Joi.number().required().label('Некорректные введенные данные id фильма'),
   }),
 }), createMovie);
 
-router.delete('/movies/:movieId', celebrate({
+router.delete('/:movieId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24).label('Невалидный id'),
+    movieId: Joi.string().hex().length(24).label('Невалидный id'),
   }),
 }), deleteMovie);
 
