@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const { celebrate, Joi } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -9,7 +10,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const usersRoutes = require('./routes/users');
 const moviesRoutes = require('./routes/movies');
 const auth = require('./middlewares/auth');
-const { createUser, login } = require('./controllers/users');
+const { createUser, login, logout } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-err');
 
 const { PORT = 3000 } = process.env;
@@ -27,6 +28,7 @@ mongoose.connect('mongodb://localhost:27017/moviesdb', {
 });
 
 // app.use(cors);
+app.use(cookieParser());
 
 app.use(requestLogger);
 
@@ -50,6 +52,8 @@ app.post('/signup', celebrate({
     name: Joi.string().min(2).max(30),
   }),
 }), createUser);
+
+app.post('/signout', logout);
 
 app.use('/users', auth, usersRoutes);
 app.use('/movies', auth, moviesRoutes);

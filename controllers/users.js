@@ -92,7 +92,12 @@ module.exports.login = (req, res, next) => {
         secretKey,
         { expiresIn: '7d' },
       );
-      res.send({ token });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+        })
+        .end();
     })
     .catch((e) => {
       let error = e;
@@ -102,6 +107,11 @@ module.exports.login = (req, res, next) => {
 
       next(error);
     });
+};
+
+module.exports.logout = (req, res) => {
+  res.clearCookie('jwt')
+    .end();
 };
 
 module.exports.createUser = (req, res, next) => {

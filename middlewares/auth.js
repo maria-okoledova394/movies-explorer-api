@@ -8,7 +8,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'bad-secret-key';
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const authorization = req.cookies.jwt;
 
   if (!authorization) {
     next(new ForbiddenError('Необходима авторизация'));
