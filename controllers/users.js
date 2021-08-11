@@ -24,7 +24,6 @@ module.exports.getProfileInfo = (req, res, next) => {
       }
     })
     .catch((e) => {
-      console.log(e);
       let error = e;
       if (!(error.name === 'NotFoundError')) {
         if (e.name === 'CastError') {

@@ -57,7 +57,6 @@ module.exports.createMovie = (req, res, next) => {
       movieId: movie.movieId,
     }))
     .catch((e) => {
-      console.log(e);
       let error = e;
       if (e.name === 'ValidationError') {
         error = new BadRequestError('Некорректные введенные данные');

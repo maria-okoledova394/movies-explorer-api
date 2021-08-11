@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const routes = require('./routes/index');
+const handleErrors = require('./middlewares/handle-errors');
 // const cors = require('./middlewares/cors');
 const NotFoundError = require('./errors/not-found-err');
 
@@ -36,10 +37,7 @@ app.use((req, res, next) => {
 });
 
 app.use(errors());
-
-app.use((err, req, res, next) => { // eslint-disable-line
-  res.status(err.statusCode).send({ message: err.message });
-});
+app.use(handleErrors);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
