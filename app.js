@@ -4,13 +4,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
-const { celebrate, Joi } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const routes = require('./routes/index');
 // const cors = require('./middlewares/cors');
-const usersRoutes = require('./routes/users');
-const moviesRoutes = require('./routes/movies');
-const auth = require('./middlewares/auth');
-const { createUser, login, logout } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-err');
 
 const { PORT = 3000, URL } = process.env;
@@ -31,32 +27,7 @@ mongoose.connect(URL, {
 app.use(cookieParser());
 
 app.use(requestLogger);
-
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
-
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-  }),
-}), createUser);
-
-app.post('/signout', logout);
-
-app.use('/users', auth, usersRoutes);
-app.use('/movies', auth, moviesRoutes);
+app.use(routes);
 
 app.use(errorLogger);
 
