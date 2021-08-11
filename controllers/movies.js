@@ -3,12 +3,19 @@ const NotFoundError = require('../errors/not-found-err');
 const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request');
 const ForbiddenError = require('../errors/forbidden');
+const {
+  invalidIdMessage,
+  serverErrorMessage,
+  incorrectDataMessage,
+  notAllowDeleteMessage,
+  notFoundMovieMessage,
+} = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
     .then((movies) => res.send({ movies }))
     .catch(() => {
-      const error = new InternalServerError('На сервере произошла ошибка');
+      const error = new InternalServerError(serverErrorMessage);
       next(error);
     });
 };
@@ -59,9 +66,9 @@ module.exports.createMovie = (req, res, next) => {
     .catch((e) => {
       let error = e;
       if (e.name === 'ValidationError') {
-        error = new BadRequestError('Некорректные введенные данные');
+        error = new BadRequestError(incorrectDataMessage);
       } else {
-        error = new InternalServerError('На сервере произошла ошибка');
+        error = new InternalServerError(serverErrorMessage);
       }
       next(error);
     });
@@ -71,7 +78,7 @@ module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError('Запрашиваемая карточка не найдена');
+        throw new NotFoundError(notFoundMovieMessage);
       } else if (req.user._id === movie.owner.toString()) {
         return Movie.findByIdAndRemove(req.params.movieId)
           .then((deletedMovie) => {
@@ -92,7 +99,7 @@ module.exports.deleteMovie = (req, res, next) => {
             });
           });
       } else {
-        throw new ForbiddenError('Удалять можно только свои карточки');
+        throw new ForbiddenError(notAllowDeleteMessage);
       }
     })
     .catch((e) => {
@@ -100,9 +107,9 @@ module.exports.deleteMovie = (req, res, next) => {
       if (!(error.name === 'NotFoundError')) {
         if (!(error.name === 'ForbiddenError')) {
           if (e.name === 'CastError') {
-            error = new BadRequestError('Невалидный id');
+            error = new BadRequestError(invalidIdMessage);
           } else {
-            error = new InternalServerError('На сервере произошла ошибка');
+            error = new InternalServerError(serverErrorMessage);
           }
         }
       }

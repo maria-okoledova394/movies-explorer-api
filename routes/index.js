@@ -4,10 +4,11 @@ const usersRoutes = require('./users');
 const moviesRoutes = require('./movies');
 const auth = require('../middlewares/auth');
 const { createUser, login, logout } = require('../controllers/users');
+const { serverCrashMessage } = require('../utils/constants');
 
 router.get('/crash-test', () => {
   setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
+    throw new Error(serverCrashMessage);
   }, 0);
 });
 

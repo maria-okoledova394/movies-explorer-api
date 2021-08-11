@@ -2,6 +2,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const ForbiddenError = require('../errors/forbidden');
 const UnauthorizedError = require('../errors/unauthorized');
+const { needAuthMessage, authErrorMessage } = require('../utils/constants');
 
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -11,7 +12,7 @@ module.exports = (req, res, next) => {
   const authorization = req.cookies.jwt;
 
   if (!authorization) {
-    next(new ForbiddenError('Необходима авторизация'));
+    next(new ForbiddenError(needAuthMessage));
   }
 
   const token = extractBearerToken(authorization);
@@ -23,6 +24,6 @@ module.exports = (req, res, next) => {
 
     next();
   } catch (e) {
-    next(new UnauthorizedError('Ошибка авторизации'));
+    next(new UnauthorizedError(authErrorMessage));
   }
 };

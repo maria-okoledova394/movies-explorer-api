@@ -6,6 +6,7 @@ const {
   createMovie,
   deleteMovie,
 } = require('../controllers/movies');
+const { incorrectDataMessage, invalidIdMessage } = require('../utils/constants');
 
 const BadRequestError = require('../errors/bad-request');
 
@@ -16,7 +17,7 @@ const method = (value) => {
   if (result) {
     return value;
   }
-  throw new BadRequestError('Некорректные введенные данные');
+  throw new BadRequestError(incorrectDataMessage);
 };
 
 router.get('/', getMovies);
@@ -39,7 +40,7 @@ router.post('/', celebrate({
 
 router.delete('/:movieId', celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().hex().length(24).label('Невалидный id'),
+    movieId: Joi.string().hex().length(24).label(invalidIdMessage),
   }),
 }), deleteMovie);
 

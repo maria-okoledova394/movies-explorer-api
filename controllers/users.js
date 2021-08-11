@@ -7,6 +7,14 @@ const UnauthorizedError = require('../errors/unauthorized');
 const InternalServerError = require('../errors/internal-server-error');
 const BadRequestError = require('../errors/bad-request');
 const ConflictError = require('../errors/conflict');
+const {
+  notFoundUserMessage,
+  invalidIdMessage,
+  serverErrorMessage,
+  incorrectDataMessage,
+  incorrectEmailOrPasswordMessage,
+  emailExistMessage,
+} = require('../utils/constants');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 const secretKey = NODE_ENV === 'production' ? JWT_SECRET : 'bad-secret-key';
@@ -15,7 +23,7 @@ module.exports.getProfileInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Запрашиваемый пользователь не найден');
+        throw new NotFoundError(notFoundUserMessage);
       } else {
         res.send({
           name: user.name,
@@ -27,9 +35,9 @@ module.exports.getProfileInfo = (req, res, next) => {
       let error = e;
       if (!(error.name === 'NotFoundError')) {
         if (e.name === 'CastError') {
-          error = new BadRequestError('Невалидный id');
+          error = new BadRequestError(invalidIdMessage);
         } else {
-          error = new InternalServerError('На сервере произошла ошибка');
+          error = new InternalServerError(serverErrorMessage);
         }
       }
       next(error);
@@ -47,7 +55,7 @@ module.exports.updateProfile = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Запрашиваемый пользователь не найден');
+        throw new NotFoundError(notFoundUserMessage);
       }
       res.send({
         name: user.name,
@@ -58,11 +66,11 @@ module.exports.updateProfile = (req, res, next) => {
       let error = e;
       if (!(error.name === 'NotFoundError')) {
         if (e.name === 'CastError') {
-          error = new BadRequestError('Невалидный id');
+          error = new BadRequestError(invalidIdMessage);
         } else if (e.name === 'ValidationError') {
-          error = new BadRequestError('Некорректные введенные данные');
+          error = new BadRequestError(incorrectDataMessage);
         } else {
-          error = new InternalServerError('На сервере произошла ошибка');
+          error = new InternalServerError(serverErrorMessage);
         }
       }
       next(error);
@@ -75,12 +83,12 @@ module.exports.login = (req, res, next) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неправильные почта или пароль');
+        throw new UnauthorizedError(incorrectEmailOrPasswordMessage);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError('Неправильные почта или пароль');
+            throw new UnauthorizedError(incorrectEmailOrPasswordMessage);
           }
           return user;
         });
@@ -101,7 +109,7 @@ module.exports.login = (req, res, next) => {
     .catch((e) => {
       let error = e;
       if (!(error.name === 'UnauthorizedError')) {
-        error = new InternalServerError('На сервере произошла ошибка');
+        error = new InternalServerError(serverErrorMessage);
       }
 
       next(error);
@@ -127,11 +135,11 @@ module.exports.createUser = (req, res, next) => {
     .catch((e) => {
       let error = e;
       if (e.name === 'ValidationError') {
-        error = new BadRequestError('Некорректные введенные данные');
+        error = new BadRequestError(incorrectDataMessage);
       } else if (e.name === 'MongoError') {
-        error = new ConflictError('Пользователь с таким email уже существует');
+        error = new ConflictError(emailExistMessage);
       } else {
-        error = new InternalServerError('На сервере произошла ошибка');
+        error = new InternalServerError(serverErrorMessage);
       }
       next(error);
     });
