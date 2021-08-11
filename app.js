@@ -10,8 +10,7 @@ const routes = require('./routes/index');
 const handleErrors = require('./middlewares/handle-errors');
 // const cors = require('./middlewares/cors');
 const NotFoundError = require('./errors/not-found-err');
-
-const { PORT = 3000, URL = 'mongodb://localhost:27017/moviesdb' } = process.env;
+const { PORT, URL } = require('./utils/config');
 
 const app = express();
 
