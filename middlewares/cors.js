@@ -1,7 +1,7 @@
 const allowedCors = [
   'https://movies.box.nomoredomains.club',
   'http://movies.box.nomoredomains.club',
-  'localhost:3000',
+  'http://localhost:3000',
   'http://84.201.174.27',
   'https://84.201.174.27',
 ];
