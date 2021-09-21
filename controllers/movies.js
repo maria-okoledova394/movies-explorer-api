@@ -62,6 +62,7 @@ module.exports.createMovie = (req, res, next) => {
       nameRU: movie.nameRU,
       nameEN: movie.nameEN,
       movieId: movie.movieId,
+      _id: movie._id,
     }))
     .catch((e) => {
       let error = e;
